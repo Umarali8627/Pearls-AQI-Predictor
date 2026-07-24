@@ -36,7 +36,7 @@ jobs:
         env:
           HOPSWORKS_PROJECT: ${{ secrets.HOPSWORKS_PROJECT }}
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
-        run: python src/pipelines/training.py
+        run:  python -m src.pipelines.trainiing
 
       - name: Upload run logs
         if: always()

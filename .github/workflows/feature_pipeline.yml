@@ -39,7 +39,7 @@ jobs:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           # Add any additional secrets your feature pipeline needs, e.g.:
           # AQI_API_KEY: ${{ secrets.AQI_API_KEY }}
-        run: python src/pipelines/feature_pipeline.py
+        run: python -m src.pipelines.feature_pipeline
 
       - name: Upload run logs
         if: always()
