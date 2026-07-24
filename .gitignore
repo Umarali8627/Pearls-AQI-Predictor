@@ -1,0 +1,22 @@
+# Environments & secrets
+.venv/
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Pipeline outputs (regenerated each run / already pushed to Hopsworks)
+logs/
+models/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+# frontend
+pearls-aqi-insight
+current_data
+downloaded_models
