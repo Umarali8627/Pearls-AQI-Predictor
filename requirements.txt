@@ -11,13 +11,13 @@ numpy==2.4.6
 pandas==2.3.3
 scikit-learn==1.9.0
 joblib==1.5.3
-tensorflow==2.21.0
+tensorflow
 
 # =========================
 # Feature Store
 # =========================
-hopsworks==5.0.3
-protobuf==7.35.1
+hopsworks
+protobuf
 pyarrow==25.0.0
 confluent-kafka==2.13.2
 # =========================
