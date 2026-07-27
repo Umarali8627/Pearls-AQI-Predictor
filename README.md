@@ -754,18 +754,61 @@ The training pipeline can also be triggered manually from the GitHub Actions int
 
 ```json
 {
-  "predictions": {
-    "24h": {
-      "aqi": 82,
-      "category": "Moderate"
-    },
-    "48h": {
-      "aqi": 118,
-      "category": "Unhealthy for Sensitive Groups"
-    },
-    "72h": {
-      "aqi": 156,
-      "category": "Unhealthy"
+  "24": {
+    "label": "24h (Day 1)",
+    "predicted_aqi": 117.44,
+    "model_version": 1,
+    "model_rmse": 19.46853913867719,
+    "classification": {
+      "category": "usg",
+      "category_label": "Unhealthy for Sensitive Groups",
+      "alert": false
+    }
+  },
+  "48": {
+    "label": "48h (Day 2)",
+    "predicted_aqi": 123.97,
+    "model_version": 2,
+    "model_rmse": 22.28577456806284,
+    "classification": {
+      "category": "usg",
+      "category_label": "Unhealthy for Sensitive Groups",
+      "alert": false
+    }
+  },
+  "72": {
+    "label": "72h (Day 3)",
+    "predicted_aqi": 125.22,
+    "model_version": 1,
+    "model_rmse": 25.693000622366537,
+    "classification": {
+      "category": "usg",
+      "category_label": "Unhealthy for Sensitive Groups",
+      "alert": false
+    }
+  },
+  "Today": {
+    "temperature": 31.7,
+    "humidity": 62,
+    "pressure": 999.6,
+    "co": 577,
+    "no": 1.6,
+    "no2": 10.3,
+    "o3": 140,
+    "so2": 8.9,
+    "pm2_5": 37.1,
+    "pm10": 38.3,
+    "hour": 9,
+    "day": 27,
+    "month": 7,
+    "day_of_week": 0,
+    "week_of_year": 31,
+    "aqi": 121,
+    "aqi_change_rate": 4,
+    "classification": {
+      "category": "usg",
+      "category_label": "Unhealthy for Sensitive Groups",
+      "alert": false
     }
   }
 }
