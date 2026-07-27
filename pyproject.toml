@@ -2,7 +2,7 @@
 name = "pearls-aqi-predictor"
 version = "1.0.0"
 description = "FastAPI backend for real-time AQI data and multi-horizon AQI forecasting"
-requires-python = "==3.11"
+requires-python = ">=3.11,<3.12"
 
 dependencies = [
     "fastapi[standard]",
