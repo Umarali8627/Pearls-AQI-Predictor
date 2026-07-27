@@ -24,7 +24,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.11"
           cache: "pip"
 
       - name: Install dependencies
@@ -36,7 +36,7 @@ jobs:
         env:
           HOPSWORKS_PROJECT: ${{ secrets.HOPSWORKS_PROJECT }}
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
-        run:  python -m src.pipelines.trainiing
+        run:  python -m src.pipelines.training_pipeline
 
       - name: Upload run logs
         if: always()
