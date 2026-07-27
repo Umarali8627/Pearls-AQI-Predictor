@@ -50,7 +50,7 @@ app.add_middleware(
     CORSMiddleware,
      allow_origins=[
         "http://localhost:5173",  
-        "https://pearlsair.vercel.app/", 
+        "https://pearlsair.vercel.app", 
     ],
     allow_credentials=True,
     allow_methods=["*"],
