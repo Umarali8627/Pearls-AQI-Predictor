@@ -1,6 +1,6 @@
 from fastapi import FastAPI,Response
 from src.pipelines.inference_pipeline import (run_inference,
-                                              current_data,HORIZONS,connect
+                                              current_data,HORIZONS,connect,run_shap_analysis,
                                               )
 # from src.pipelines import feature_pipeline 
 from fastapi.middleware.cors import CORSMiddleware
@@ -61,7 +61,6 @@ app.add_middleware(
 @app.get('/')
 def home():
     return {"Hello ! From Pearls AQI Predictor Everything Work fine sever started"}
-from fastapi import Response
 
 @app.get('/data')
 def get_current_24hrs_data():
@@ -83,3 +82,14 @@ def get_3_days_prediction():
             if predicted_aqi is not None:
                 data["classification"] = classify_aqi(predicted_aqi)
     return forecasts
+
+
+@app.get("/shapanalysis/{horizon}")
+def shap_analysis(horizon: int):
+
+    if horizon not in [24, 48, 72]:
+        return {"error": "Choose 24, 48, or 72"}
+
+    with hopsworks_lock:
+        return run_shap_analysis(project, horizon)
+

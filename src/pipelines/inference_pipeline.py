@@ -1,21 +1,8 @@
-"""
-Inference pipeline for AQI forecasting.
-
-Loads the best-performing registered model for each horizon (24h/48h/72h)
-from the Hopsworks Model Registry, pulls the latest feature row from the
-feature store, and returns AQI forecasts.
-
-Model type (Ridge / RandomForest / NeuralNetwork) is NOT assumed from the
-horizon -- it's detected from the downloaded artifact contents, because
-different training runs can register different winning model types under
-the same registry name (e.g. aqi_forecast_24h v1 = Ridge, v2 = RandomForest).
-"""
-
 import os
 import json
 import logging
 from datetime import datetime
-
+import shap
 import joblib
 import numpy as np
 import pandas as pd
@@ -198,6 +185,65 @@ def predict_for_horizon(model_bundle: dict, X: pd.DataFrame) -> float:
     return float(pred)
 
 
+def get_shap_analysis(model_bundle: dict, X: pd.DataFrame):
+    """
+    Returns SHAP explanations for one prediction.
+    """
+
+    X_input = X[FEATURE_COLUMNS]
+
+    if model_bundle["scaler"] is not None:
+        X_scaled = model_bundle["scaler"].transform(X_input)
+    else:
+        X_scaled = X_input.to_numpy(dtype=np.float32)
+
+    model = model_bundle["model"]
+
+    # -----------------------------
+    # Choose explainer automatically
+    # -----------------------------
+    if model_bundle["kind"] == "sklearn":
+
+        model_name = type(model).__name__.lower()
+
+        if "randomforest" in model_name:
+            explainer = shap.TreeExplainer(model)
+
+        elif "ridge" in model_name or "linear" in model_name:
+            explainer = shap.LinearExplainer(model, X_scaled)
+
+        else:
+            explainer = shap.Explainer(model.predict, X_scaled)
+
+        shap_values = explainer(X_scaled)
+
+    else:
+        # TensorFlow model
+
+        infer = model.signatures["serving_default"]
+
+        def predict_fn(data):
+            output = infer(tf.constant(data, dtype=tf.float32))
+            return list(output.values())[0].numpy()
+
+        explainer = shap.Explainer(predict_fn, X_scaled)
+
+        shap_values = explainer(X_scaled)
+
+    importance = []
+
+    for feature, value in zip(FEATURE_COLUMNS, shap_values.values[0]):
+        importance.append({
+            "feature": feature,
+            "shap_value": float(value)
+        })
+
+    importance.sort(
+        key=lambda x: abs(x["shap_value"]),
+        reverse=True
+    )
+
+    return importance
 # ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
@@ -219,18 +265,24 @@ def run_inference(project,use: str = "best") -> dict:
         logger.info("%s -> predicted AQI = %.2f (v%s)", label, pred, bundle["version"])
     forecasts["Today"]=latest_data
     return forecasts
-# def current_data(project):
-#        fs = project.get_feature_store()
-#        fg = fs.get_feature_group(name=FG_NAME, version=FG_VERSION)
-#        df = fg.read()
-       
-#        if df.empty:
-#               raise RuntimeError(f"Feature group '{FG_NAME}' v{FG_VERSION} is empty.")
-      
-#        df = df.sort_values("datetime").reset_index(drop=True)
 
-#        df.to_csv("current_data",index=False)
-#        print("Data saved successfully..")
+def run_shap_analysis(project, horizon=24):
+
+    X_latest = get_latest_feature_row(project)
+
+    bundle = load_model_for_horizon(project, horizon)
+
+    prediction = predict_for_horizon(bundle, X_latest)
+
+    importance = get_shap_analysis(bundle, X_latest)
+
+    return {
+        "prediction": round(prediction, 2),
+        "model_version": bundle["version"],
+        "model_rmse": bundle["rmse"],
+        "feature_importance": importance
+    }
+
 import datetime
 
 def current_data(project):
